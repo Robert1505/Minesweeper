@@ -10,6 +10,9 @@
   width: 50px;
   background-color: white;
   border-radius: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .row{
   display: flex;
