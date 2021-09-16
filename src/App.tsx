@@ -3,8 +3,12 @@ import './App.css';
 import Cell from './Cell';
 
 export enum CELL_TYPE {
-  BOMB,
-  EMPTY
+  BOMB = -1,
+  EMPTY = 0, 
+  ONE = 1,
+  TWO = 2,
+  THREE = 3,
+  FOUR = 4
 }
 
 function App() {
@@ -19,7 +23,7 @@ function App() {
         for (let j = 0; j < columns; j++) {
             oldState[i][j] = CELL_TYPE.EMPTY;
         }
-      }
+    }
 
     setBoard(oldState);
   }
@@ -33,6 +37,7 @@ function App() {
       if (bombsSpawned === false) {
         spawnRandomBombs(10);
         setBombsSpawned(true);
+        generateNumbers(9,9);
       } 
     }
   }, [board])
@@ -49,6 +54,49 @@ function App() {
       let y = Math.floor(Math.random() * 9);
       setBomb(x,y);
     }
+  }
+
+  const countBombsNearby = (x: number, y: number): number => {
+    const dx = [-1, -1, -1, 0, 1, 1, 1, 0];
+    const dy = [-1, 0, 1, 1, 1, 0, -1, -1];
+    let count = 0;
+
+    for (let i = 0; i < 8; i++) {
+
+      // calculam pozitiile de in jurul nostru pe rand
+      const newX = x + dx[i];
+      const newY = y + dy[i]; 
+
+      // verificam daca pozitia unde cautam bomba se afla in matrice
+      if (newX >= 0 && newY >= 0 && newX <= 8 && newY <= 8) {
+        // verificam daca am gasit o bomba
+        if (board[newX][newY] === CELL_TYPE.BOMB) {
+          count++;
+        }
+      }
+
+    }
+
+    return count;
+
+  }
+  
+  const generateNumbers = (rows: number, columns: number) => {
+    const oldState = [...board];
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        if(oldState[i][j] === CELL_TYPE.EMPTY) {
+          const count = countBombsNearby(i, j);
+          if(count === 1) oldState[i][j] = CELL_TYPE.ONE
+          else if(count === 2) oldState[i][j] = CELL_TYPE.TWO
+          else if(count === 3) oldState[i][j] = CELL_TYPE.THREE
+          else if(count === 4) oldState[i][j] = CELL_TYPE.FOUR;
+        }
+      }
+    }
+
+    setBoard(oldState);
   }
 
   const renderRow = (row: CELL_TYPE[]) => {
