@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, useState } from "react";
 import { CELL_TYPE } from "./App";
 import "./App.css";
 import BombSVG from "./BombSVG";
@@ -8,7 +8,10 @@ interface Props {
 }
 
 export default function Cell(props: Props): ReactElement {
+  const [isClicked, setIsClicked] = useState<boolean>(false);
+
   const renderIcon = () => {
+    if (!isClicked) return;
     if (props.type === CELL_TYPE.BOMB) {
       return <BombSVG />;
     }
@@ -16,5 +19,14 @@ export default function Cell(props: Props): ReactElement {
     return <></>;
   };
 
-  return <div className="cell">{renderIcon()}</div>;
+  return (
+    <div onClick={() => setIsClicked(true)} className="cell"
+        style={{
+            backgroundColor: isClicked ? "#C7DBE6" : "#9893DA"
+        }}
+    >
+
+      {renderIcon()}
+    </div>
+  );
 }
