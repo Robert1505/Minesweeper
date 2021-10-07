@@ -5,13 +5,13 @@ import BombSVG from "./BombSVG";
 
 interface Props {
   type: CELL_TYPE;
+  isClicked: boolean;
+  setIsClicked: Function;
 }
 
 export default function Cell(props: Props): ReactElement {
-  const [isClicked, setIsClicked] = useState<boolean>(false);
-
   const renderIcon = () => {
-    if (!isClicked) return;
+    if (!props.isClicked) return;
     if (props.type === CELL_TYPE.BOMB) {
       return <BombSVG />;
     }
@@ -20,12 +20,14 @@ export default function Cell(props: Props): ReactElement {
   };
 
   return (
-    <div onClick={() => setIsClicked(true)} className="cell"
-        style={{
-            backgroundColor: isClicked ? "#C7DBE6" : "#9893DA"
-        }}
+    <div
+      onClick={() => props.setIsClicked()}
+      className="cell"
+      style={{
+        backgroundColor: props.isClicked ? "#888888" : "#1E1014",
+        color: "whitesmoke"
+      }}
     >
-
       {renderIcon()}
     </div>
   );

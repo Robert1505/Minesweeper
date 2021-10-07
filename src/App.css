@@ -1,5 +1,5 @@
 .App{
-  background-color: grey;
+  background-color: #DEDEE0;
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -8,14 +8,25 @@
 .cell{
   height: 50px;
   width: 50px;
-  background-color: white;
+  background-color: #1E1014;
   border-radius: 7px;
   display: flex;
   justify-content: center;
   align-items: center;
+
+  transition: all 0.2s ease-in-out;
 }
+
+.cell:hover {
+  transform: scale(1.2, 1.2);
+}
+
 .row{
   display: flex;
   gap: 20px;
   padding: 10px 0px;
+}
+.title{
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 50px;
 }
