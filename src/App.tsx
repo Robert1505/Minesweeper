@@ -15,6 +15,7 @@ export interface CellContent {
   type: CELL_TYPE;
   isClicked: boolean;
   visited: boolean;
+  isFlagged: boolean;
 }
 
 const dx = [-1, 0, 1, 0];
@@ -22,11 +23,8 @@ const dy = [0, 1, 0, -1];
 
 function App() {
   const [board, setBoard] = useState<CellContent[][]>([]);
-  // const [visited, setVisited] = useState<boolean[][]>([]);
   const [bombsSpawned, setBombsSpawned] = useState<boolean>(false);
 
-  // const fillBoard = useRef<CellContent[][]>([]);
-  // const fillVisited = useRef<boolean[][]>([]);
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -38,6 +36,7 @@ function App() {
           type: CELL_TYPE.EMPTY,
           isClicked: false,
           visited: false,
+          isFlagged: false
         };
       }
     }
@@ -73,26 +72,6 @@ function App() {
     }
   };
 
-  const countBombsNearby = (x: number, y: number): number => {
-    let count = 0;
-
-    for (let i = 0; i < 8; i++) {
-      // calculam pozitiile de in jurul nostru pe rand
-      const newX = x + dx[i];
-      const newY = y + dy[i];
-
-      // verificam daca pozitia unde cautam bomba se afla in matrice
-      if (newX >= 0 && newY >= 0 && newX <= 8 && newY <= 8) {
-        // verificam daca am gasit o bomba
-        if (board[newX][newY].type === CELL_TYPE.BOMB) {
-          count++;
-        }
-      }
-    }
-
-    return count;
-  };
-
   const generateNumbers = (rows: number, columns: number) => {
     const oldState = [...board];
 
@@ -111,6 +90,26 @@ function App() {
     setBoard(oldState);
   };
 
+  const countBombsNearby = (x: number, y: number): number => {
+    let count = 0;
+
+    for (let i = 0; i < 8; i++) {
+      // calculam pozitiile din jurul nostru pe rand
+      const newX = x + dx[i];
+      const newY = y + dy[i];
+
+      // verificam daca pozitia unde cautam bomba se afla in matrice
+      if (newX >= 0 && newY >= 0 && newX <= 8 && newY <= 8) {
+        // verificam daca am gasit o bomba
+        if (board[newX][newY].type === CELL_TYPE.BOMB) {
+          count++;
+        }
+      }
+    }
+
+    return count;
+  };
+  
   const floodFillRecursive = (i: number, j: number) => {
     const squares = [...board];
 
@@ -150,6 +149,12 @@ function App() {
           key={`cell-${rowIndex}-${columnIndex}`}
           type={cellContent.type}
           isClicked={cellContent.isClicked}
+          isFlagged= {cellContent.isFlagged}
+          setIsFlagged= {() => {
+            const oldBoard = [...board];
+            oldBoard[rowIndex][columnIndex].isFlagged = true;
+            setBoard(oldBoard);
+          }}
           setIsClicked={() => {
             const oldBoard = [...board];
 
