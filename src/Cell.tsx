@@ -24,12 +24,18 @@ export default function Cell(props: Props): ReactElement {
     return <></>;
   };
 
+  const handleClick = () => {
+    if (props.isFlagged) return;
+    props.setIsClicked();
+  }
+
   return (
     <div
-      onClick={() => props.setIsClicked()}
+      onClick={() => handleClick()}
       onContextMenu={(e) => {
         e.preventDefault();
-        props.setIsFlagged();
+        if(!props.isClicked) props.setIsFlagged(true);
+        if(props.isFlagged) props.setIsFlagged(false);
       }}
       className="cell"
       style={{
