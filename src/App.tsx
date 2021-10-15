@@ -27,13 +27,16 @@ export interface CellContent {
 const dx = [-1, 0, 1, 0, -1, -1, 1, 1];
 const dy = [0, 1, 0, -1, -1, 1, 1, -1];
 
+const INITIAL_BOMBS: number = 20;
+
 function App() {
   const [board, setBoard] = useState<CellContent[][]>([]);
   const [bombsSpawned, setBombsSpawned] = useState<boolean>(false);
   const [gameState, setGameState] = useState<GAME_STATE>(
     GAME_STATE.IN_PROGRESS
   );
-  const [bombsRemaining, setBombsRemaining] = useState(20);
+  const [bombsRemaining, setBombsRemaining] = useState(INITIAL_BOMBS);
+  const [cellsRemaining, setCellsRemaining] = useState(81);
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -56,11 +59,15 @@ function App() {
   useEffect(() => {
     initialiseBoard(9, 9);
   }, []);
+  useEffect(() => {
+    console.log('cellsRemaining', cellsRemaining)
+    if(cellsRemaining === INITIAL_BOMBS) setGameState(GAME_STATE.WIN)
+  }, [cellsRemaining])
 
   useEffect(() => {
     if (board.length > 0) {
       if (bombsSpawned === false) {
-        spawnRandomBombs(20);
+        spawnRandomBombs(INITIAL_BOMBS);
         setBombsSpawned(true);
         generateNumbers(9, 9);
       }
@@ -122,7 +129,8 @@ function App() {
   const floodFillRecursive = (i: number, j: number) => {
     const squares = [...board];
 
-    floodFillRecursiveHelper(squares, i, j);
+    const discorveredCells = floodFillRecursiveHelper(squares, i, j);
+    setCellsRemaining(cellsRemaining - discorveredCells);
     setBoard(squares);
   };
 
@@ -130,25 +138,25 @@ function App() {
     squares: CellContent[][],
     i: number,
     j: number
-  ) => {
+  ): number => {
     // check out of bounds
-    if (i < 0 || i > 8) return;
-    if (j < 0 || j > 8) return;
+    if (i < 0 || i > 8) return 0;
+    if (j < 0 || j > 8) return 0;
     // check if it's visited
-    if (squares[i][j].visited) return;
+    if (squares[i][j].visited) return 0;
     // Indicate node has been visited
     squares[i][j].visited = true;
     squares[i][j].isClicked = true;
-    // check if it's same color
 
     if (squares[i][j].type !== CELL_TYPE.EMPTY) {
       squares[i][j].isClicked = true;
-      return;
+      return 1;
     }
-
+    let sum = 0;
     for (let a = 0; a < 4; a++) {
-      floodFillRecursiveHelper(squares, i + dx[a], j + dy[a]);
+      sum += floodFillRecursiveHelper(squares, i + dx[a], j + dy[a]);
     }
+    return sum + 1;
   };
 
   const renderRow = (row: CellContent[], rowIndex: number) => {
@@ -170,6 +178,8 @@ function App() {
             const oldBoard = [...board];
 
             oldBoard[rowIndex][columnIndex].isClicked = true;
+
+            setCellsRemaining(cellsRemaining - 1)
 
             setBoard(oldBoard);
 
