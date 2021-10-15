@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from "react";
-import { CELL_TYPE } from "./App";
+import { CELL_TYPE, GAME_STATE } from "./App";
 import "./App.css";
 import BombSVG from "./BombSVG";
 import FlagSVG from "./FlagSVG";
@@ -10,6 +10,8 @@ interface Props {
   setIsClicked: Function;
   isFlagged: boolean;
   setIsFlagged: Function;
+  setGameState: Function;
+  gameState: GAME_STATE;
 }
 
 export default function Cell(props: Props): ReactElement {
@@ -25,7 +27,11 @@ export default function Cell(props: Props): ReactElement {
   };
 
   const handleClick = () => {
+    if(props.gameState !== GAME_STATE.IN_PROGRESS) return;
     if (props.isFlagged) return;
+    if (props.type === CELL_TYPE.BOMB) {
+      props.setGameState(GAME_STATE.LOST)
+    }
     props.setIsClicked();
   }
 

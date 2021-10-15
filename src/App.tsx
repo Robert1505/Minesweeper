@@ -11,6 +11,12 @@ export enum CELL_TYPE {
   FOUR = 4,
 }
 
+export enum GAME_STATE {
+  IN_PROGRESS,
+  WIN,
+  LOST,
+}
+
 export interface CellContent {
   type: CELL_TYPE;
   isClicked: boolean;
@@ -24,7 +30,9 @@ const dy = [0, 1, 0, -1, -1, 1, 1, -1];
 function App() {
   const [board, setBoard] = useState<CellContent[][]>([]);
   const [bombsSpawned, setBombsSpawned] = useState<boolean>(false);
-
+  const [gameState, setGameState] = useState<GAME_STATE>(
+    GAME_STATE.IN_PROGRESS
+  );
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -36,7 +44,7 @@ function App() {
           type: CELL_TYPE.EMPTY,
           isClicked: false,
           visited: false,
-          isFlagged: false
+          isFlagged: false,
         };
       }
     }
@@ -109,7 +117,7 @@ function App() {
 
     return count;
   };
-  
+
   const floodFillRecursive = (i: number, j: number) => {
     const squares = [...board];
 
@@ -149,8 +157,8 @@ function App() {
           key={`cell-${rowIndex}-${columnIndex}`}
           type={cellContent.type}
           isClicked={cellContent.isClicked}
-          isFlagged= {cellContent.isFlagged}
-          setIsFlagged= {(flagged: boolean) => {
+          isFlagged={cellContent.isFlagged}
+          setIsFlagged={(flagged: boolean) => {
             const oldBoard = [...board];
             oldBoard[rowIndex][columnIndex].isFlagged = flagged;
             setBoard(oldBoard);
@@ -166,6 +174,8 @@ function App() {
               floodFillRecursive(rowIndex, columnIndex);
             }
           }}
+          setGameState={setGameState}
+          gameState={gameState}
         />
       );
     });
@@ -181,9 +191,22 @@ function App() {
     });
   };
 
+  const refreshPage = () => {
+    window.location.reload();
+  };
+
   return (
     <div className="App">
       <div>{renderBoard()}</div>
+      <button
+        onClick={refreshPage}
+        style={{
+          visibility:
+            gameState !== GAME_STATE.IN_PROGRESS ? "visible" : "hidden",
+        }}
+      >
+        Restart
+      </button>
     </div>
   );
 }
