@@ -33,6 +33,7 @@ function App() {
   const [gameState, setGameState] = useState<GAME_STATE>(
     GAME_STATE.IN_PROGRESS
   );
+  const [bombsRemaining, setBombsRemaining] = useState(20);
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -161,6 +162,8 @@ function App() {
           setIsFlagged={(flagged: boolean) => {
             const oldBoard = [...board];
             oldBoard[rowIndex][columnIndex].isFlagged = flagged;
+            if(flagged) setBombsRemaining(bombsRemaining - 1)
+            else setBombsRemaining(bombsRemaining + 1);
             setBoard(oldBoard);
           }}
           setIsClicked={() => {
@@ -197,6 +200,9 @@ function App() {
 
   return (
     <div className="App">
+      <div>
+        Bomb Counter: {bombsRemaining}
+      </div>
       <div>{renderBoard()}</div>
       <button
         onClick={refreshPage}
