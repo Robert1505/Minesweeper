@@ -18,8 +18,8 @@ export interface CellContent {
   isFlagged: boolean;
 }
 
-const dx = [-1, 0, 1, 0];
-const dy = [0, 1, 0, -1];
+const dx = [-1, 0, 1, 0, -1, -1, 1, 1];
+const dy = [0, 1, 0, -1, -1, 1, 1, -1];
 
 function App() {
   const [board, setBoard] = useState<CellContent[][]>([]);
@@ -150,9 +150,9 @@ function App() {
           type={cellContent.type}
           isClicked={cellContent.isClicked}
           isFlagged= {cellContent.isFlagged}
-          setIsFlagged= {() => {
+          setIsFlagged= {(flagged: boolean) => {
             const oldBoard = [...board];
-            oldBoard[rowIndex][columnIndex].isFlagged = true;
+            oldBoard[rowIndex][columnIndex].isFlagged = flagged;
             setBoard(oldBoard);
           }}
           setIsClicked={() => {
