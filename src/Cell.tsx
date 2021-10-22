@@ -45,7 +45,7 @@ export default function Cell(props: Props): ReactElement {
       }}
       className="cell"
       style={{
-        backgroundColor: props.isClicked ? "#888888" : "#1E1014",
+        backgroundColor: props.isClicked ? "#00b4d8" : "#03045e",
         color: "whitesmoke",
       }}
     >

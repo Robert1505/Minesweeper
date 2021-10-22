@@ -1,5 +1,5 @@
 .App{
-  background-color: #DEDEE0;
+  background-color: #ade8f4;
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -9,7 +9,7 @@
 .cell{
   height: 50px;
   width: 50px;
-  background-color: #1E1014;
+  background-color: #03045e;
   border-radius: 7px;
   display: flex;
   justify-content: center;
@@ -30,4 +30,38 @@
 .title{
   font-family: 'Ubuntu', sans-serif;
   font-size: 50px;
+}
+.buttons{
+  display: flex;
+  margin-top: 10px;
+  flex-direction: row;
+}
+.restartButton{
+  margin-right: 50px;
+  height: 35px;
+  width: 100px;
+  background-color: #0077b6;
+  color: white;
+  border-radius: 25px;
+  border: 0;
+  font-family: 'Ubuntu', sans-serif;
+  text-transform: uppercase;
+}
+.replayButton{
+  height: 35px;
+  width: 100px;
+  background-color: #0077b6;
+  color: white;
+  border-radius: 25px;
+  border: 0;  
+  font-family: 'Ubuntu', sans-serif;
+  text-transform: uppercase;
+
+}
+.bombcounter{
+  font-family: 'Libre Baskerville', serif;
+  margin-bottom: 15px;
+  margin-top: 15px;
+  font-size: 25px;
+  color: #03045e;
 }

@@ -24,6 +24,11 @@ export interface CellContent {
   isFlagged: boolean;
 }
 
+export type Move = {
+  positionX: number;
+  positionY: number
+}
+
 const dx = [-1, 0, 1, 0, -1, -1, 1, 1];
 const dy = [0, 1, 0, -1, -1, 1, 1, -1];
 
@@ -37,6 +42,7 @@ function App() {
   );
   const [bombsRemaining, setBombsRemaining] = useState(INITIAL_BOMBS);
   const [cellsRemaining, setCellsRemaining] = useState(81);
+  const [moveHistory, setMoveHistory] = useState<Move[]>([])
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -59,8 +65,12 @@ function App() {
   useEffect(() => {
     initialiseBoard(9, 9);
   }, []);
+
   useEffect(() => {
-    console.log('cellsRemaining', cellsRemaining)
+    console.log('moveHistory', moveHistory);
+  }, [moveHistory])
+
+  useEffect(() => {
     if(cellsRemaining === INITIAL_BOMBS) setGameState(GAME_STATE.WIN)
   }, [cellsRemaining])
 
@@ -183,6 +193,11 @@ function App() {
 
             setBoard(oldBoard);
 
+            setMoveHistory([...moveHistory, {
+              positionX: rowIndex,
+              positionY: columnIndex
+            }])
+
             if (board[rowIndex][columnIndex].type === CELL_TYPE.EMPTY) {
               floodFillRecursive(rowIndex, columnIndex);
             }
@@ -208,21 +223,47 @@ function App() {
     window.location.reload();
   };
 
+  const clearBoard = () => {
+    const oldBoard = [...board];
+
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        oldBoard[i][j].isClicked = false;
+      }
+    }
+
+    setBoard(oldBoard);
+
+  }
+
   return (
     <div className="App">
-      <div>
+      <div className = "bombcounter">
         Bomb Counter: {bombsRemaining}
       </div>
       <div>{renderBoard()}</div>
-      <button
-        onClick={refreshPage}
+      <div className="buttons">
+        <button
+        className = "restartButton"
+          onClick={refreshPage}
+          style={{
+            visibility:
+              gameState !== GAME_STATE.IN_PROGRESS ? "visible" : "hidden",
+          }}
+        >
+          Restart
+        </button>
+        <button 
+        className = "replayButton"
+        onClick = {() => clearBoard()}
         style={{
           visibility:
             gameState !== GAME_STATE.IN_PROGRESS ? "visible" : "hidden",
         }}
-      >
-        Restart
-      </button>
+        >
+          Replay
+        </button>
+      </div>
     </div>
   );
 }
