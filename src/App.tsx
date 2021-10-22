@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import Cell from "./Cell";
+import ReplayCursor from "./ReplayCursor";
 
 export enum CELL_TYPE {
   BOMB = -1,
@@ -26,8 +27,14 @@ export interface CellContent {
 
 export type Move = {
   positionX: number;
-  positionY: number
-}
+  positionY: number;
+  isLeftClick: boolean;
+};
+
+export type Coordinate = {
+  coordX: number;
+  coordY: number;
+};
 
 const dx = [-1, 0, 1, 0, -1, -1, 1, 1];
 const dy = [0, 1, 0, -1, -1, 1, 1, -1];
@@ -42,7 +49,12 @@ function App() {
   );
   const [bombsRemaining, setBombsRemaining] = useState(INITIAL_BOMBS);
   const [cellsRemaining, setCellsRemaining] = useState(81);
-  const [moveHistory, setMoveHistory] = useState<Move[]>([])
+  const [moveHistory, setMoveHistory] = useState<Move[]>([]);
+  const [replayCoordinates, setReplayCoordinates] = useState<Coordinate>({
+    coordX: 0,
+    coordY: -620,
+  });
+  const [cursorVisible, setCursorVisible] = useState(false)
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -67,12 +79,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log('moveHistory', moveHistory);
-  }, [moveHistory])
+    console.log("moveHistory", moveHistory);
+  }, [moveHistory]);
 
   useEffect(() => {
-    if(cellsRemaining === INITIAL_BOMBS) setGameState(GAME_STATE.WIN)
-  }, [cellsRemaining])
+    if (cellsRemaining === INITIAL_BOMBS) setGameState(GAME_STATE.WIN);
+  }, [cellsRemaining]);
 
   useEffect(() => {
     if (board.length > 0) {
@@ -180,23 +192,35 @@ function App() {
           setIsFlagged={(flagged: boolean) => {
             const oldBoard = [...board];
             oldBoard[rowIndex][columnIndex].isFlagged = flagged;
-            if(flagged) setBombsRemaining(bombsRemaining - 1)
+            if (flagged) setBombsRemaining(bombsRemaining - 1);
             else setBombsRemaining(bombsRemaining + 1);
             setBoard(oldBoard);
+            setMoveHistory([
+              ...moveHistory,
+              {
+                positionX: rowIndex,
+                positionY: columnIndex,
+                isLeftClick: false,
+              },
+            ]);
           }}
           setIsClicked={() => {
             const oldBoard = [...board];
 
             oldBoard[rowIndex][columnIndex].isClicked = true;
 
-            setCellsRemaining(cellsRemaining - 1)
+            setCellsRemaining(cellsRemaining - 1);
 
             setBoard(oldBoard);
 
-            setMoveHistory([...moveHistory, {
-              positionX: rowIndex,
-              positionY: columnIndex
-            }])
+            setMoveHistory([
+              ...moveHistory,
+              {
+                positionX: rowIndex,
+                positionY: columnIndex,
+                isLeftClick: true,
+              },
+            ]);
 
             if (board[rowIndex][columnIndex].type === CELL_TYPE.EMPTY) {
               floodFillRecursive(rowIndex, columnIndex);
@@ -229,22 +253,84 @@ function App() {
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
         oldBoard[i][j].isClicked = false;
+        oldBoard[i][j].visited = false;
+        oldBoard[i][j].isFlagged = false;
       }
     }
 
     setBoard(oldBoard);
+  };
 
+  const handleCellClick = (rowIndex: number, columnIndex: number) => {
+    const oldBoard = [...board];
+
+    oldBoard[rowIndex][columnIndex].isClicked = true;
+
+    setCellsRemaining(cellsRemaining - 1);
+
+    setBoard(oldBoard);
+
+    if (board[rowIndex][columnIndex].type === CELL_TYPE.EMPTY) {
+      floodFillRecursive(rowIndex, columnIndex);
+    }
+  };
+
+  const handleRightClick = (rowIndex: number, columnIndex: number) => {
+    const oldBoard = [...board];
+
+    oldBoard[rowIndex][columnIndex].isFlagged =
+      !oldBoard[rowIndex][columnIndex].isFlagged;
+
+    setBoard(oldBoard);
+  };
+
+  function delay(time: number) {
+    return new Promise((resolve) => setTimeout(resolve, time));
   }
+
+  const getCoordinates = (rowIndex: number, columnIndex: number): Coordinate => {
+    // [0, 0] = {0, -620}
+    // [0, 1] = {70, -620}
+    // [0, 2] = {140, -620}
+    // [1, 0] = [0, -550]
+    // [x, y] = {y * 70, -620 + x * 70}
+    return {coordX: columnIndex * 70, coordY: -620 + rowIndex * 70}
+  }
+
+  const replayMoves = async () => {
+    clearBoard();
+    setCursorVisible(true)
+
+    for (let i = 0; i < moveHistory.length; i++) {
+      await delay(1000).then(() => {
+        if (moveHistory[i].isLeftClick) {
+          setReplayCoordinates(getCoordinates(moveHistory[i].positionX, moveHistory[i].positionY))
+          handleCellClick(moveHistory[i].positionX, moveHistory[i].positionY);
+        }
+        else{
+          setReplayCoordinates(getCoordinates(moveHistory[i].positionX, moveHistory[i].positionY))
+          handleRightClick(moveHistory[i].positionX, moveHistory[i].positionY);
+        }
+      });
+    }
+  };
 
   return (
     <div className="App">
-      <div className = "bombcounter">
-        Bomb Counter: {bombsRemaining}
+      <div className="bombcounter">Bomb Counter: {bombsRemaining}</div>
+      <div className="board">
+        {renderBoard()}
+        <ReplayCursor
+          coordX={replayCoordinates.coordX}
+          coordY={replayCoordinates.coordY}
+          isVisible = {cursorVisible}
+          startX = {moveHistory[0]?.positionX ? moveHistory[0].positionX : 0}
+          startY = {moveHistory[0]?.positionY ? moveHistory[0].positionY : -620}
+        />
       </div>
-      <div>{renderBoard()}</div>
       <div className="buttons">
         <button
-        className = "restartButton"
+          className="restartButton"
           onClick={refreshPage}
           style={{
             visibility:
@@ -253,13 +339,13 @@ function App() {
         >
           Restart
         </button>
-        <button 
-        className = "replayButton"
-        onClick = {() => clearBoard()}
-        style={{
-          visibility:
-            gameState !== GAME_STATE.IN_PROGRESS ? "visible" : "hidden",
-        }}
+        <button
+          className="replayButton"
+          onClick={() => replayMoves()}
+          style={{
+            visibility:
+              gameState !== GAME_STATE.IN_PROGRESS ? "visible" : "hidden",
+          }}
         >
           Replay
         </button>
