@@ -54,7 +54,8 @@ function App() {
     coordX: 0,
     coordY: -620,
   });
-  const [cursorVisible, setCursorVisible] = useState(false)
+  const [cursorVisible, setCursorVisible] = useState(false);
+  const [seconds, setSeconds] = useState(0);
 
   const initialiseBoard = (rows: number, columns: number) => {
     const oldState = [...board];
@@ -79,8 +80,14 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log("moveHistory", moveHistory);
-  }, [moveHistory]);
+    timerFunction()
+  }, [seconds]);
+
+  const timerFunction = async() => {
+    await delay(1000).then(() => {
+      setSeconds(seconds + 1)
+    })
+  }
 
   useEffect(() => {
     if (cellsRemaining === INITIAL_BOMBS) setGameState(GAME_STATE.WIN);
@@ -317,7 +324,10 @@ function App() {
 
   return (
     <div className="App">
-      <div className="bombcounter">Bomb Counter: {bombsRemaining}</div>
+      <div className = "line-up">
+        <div className="bombcounter">Bomb Counter: {bombsRemaining}</div>
+        <div className = "seconds">Time: {seconds} seconds</div>
+      </div>
       <div className="board">
         {renderBoard()}
         <ReplayCursor

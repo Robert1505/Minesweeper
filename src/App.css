@@ -7,6 +7,11 @@
   flex-direction: column;
 }
 
+.line-up{
+  display: flex;
+  flex-direction: row;
+}
+
 .board {
   position: relative;
 }
@@ -64,6 +69,14 @@
 
 }
 .bombcounter{
+  font-family: 'Libre Baskerville', serif;
+  margin-bottom: 15px;
+  margin-top: 15px;
+  font-size: 25px;
+  color: #03045e;
+  margin-right: 130px;
+}
+.seconds{
   font-family: 'Libre Baskerville', serif;
   margin-bottom: 15px;
   margin-top: 15px;
