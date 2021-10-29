@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from "react";
-import { CELL_TYPE, GAME_STATE } from "./App";
+import { CELL_TYPE, GAME_STATE } from "./Types";
 import "./App.css";
 import BombSVG from "./BombSVG";
 import FlagSVG from "./FlagSVG";

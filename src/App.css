@@ -41,7 +41,7 @@
   font-family: 'Ubuntu', sans-serif;
   font-size: 50px;
 }
-.buttons{
+/* .buttons{
   display: flex;
   margin-top: 10px;
   flex-direction: row;
@@ -67,7 +67,7 @@
   font-family: 'Ubuntu', sans-serif;
   text-transform: uppercase;
 
-}
+} */
 .bombcounter{
   font-family: 'Libre Baskerville', serif;
   margin-bottom: 15px;
@@ -82,4 +82,8 @@
   margin-top: 15px;
   font-size: 25px;
   color: #03045e;
+}
+.centerImage{
+  display: flex;
+  justify-content: center;
 }
